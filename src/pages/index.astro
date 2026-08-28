@@ -1,0 +1,219 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+<BaseLayout
+  title="Solo 401(k) Contribution Calculator — 2026"
+  description="Calculate the maximum you can contribute to a Solo 401(k) as a self-employed sole proprietor for 2026."
+  active="solo401k"
+>
+<div class="eyebrow">Self-employed · Schedule C · 2026 limits</div>
+  <h1>Solo 401(k) Contribution Calculator</h1>
+  <div class="sub">As a self-employed sole proprietor, you contribute in <b>two roles at once</b> — as the employee and as the employer. Enter your numbers below to see exactly how much of each you can put away. <span class="example-hint">Example: $120,000 in net profit nets you about <b>$46,800</b>.</span></div>
+
+  <div class="ledger">
+    <div class="field">
+      <label for="netProfit">Net profit from Schedule C</label>
+      <div class="input-row">
+        <span class="prefix">$</span>
+        <input type="number" id="netProfit" placeholder="120000" min="0" step="100">
+      </div>
+      <div class="hint">Line 31 of Schedule C — your business profit before this contribution.</div>
+    </div>
+
+    <div class="field">
+      <label for="age">Your age</label>
+      <select id="age">
+        <option value="under50">Under 50</option>
+        <option value="50to59">50–59</option>
+        <option value="60to63">60–63 (super catch-up)</option>
+        <option value="64plus">64 or older</option>
+      </select>
+    </div>
+
+    <div class="checkbox-row">
+      <input type="checkbox" id="hasOther">
+      <label for="hasOther">I also deferred money into a different employer's 401(k) this year</label>
+    </div>
+
+    <div class="field" id="otherPlanField">
+      <label for="otherAmount">Amount already deferred elsewhere this year</label>
+      <div class="input-row">
+        <span class="prefix">$</span>
+        <input type="number" id="otherAmount" placeholder="0" min="0" step="100">
+      </div>
+      <div class="hint">Your employee deferral limit is shared across all 401(k) plans you contribute to.</div>
+    </div>
+  </div>
+
+  <div class="ledger" id="resultsCard" style="display:none;" aria-live="polite">
+    <div class="results-head">
+      <div class="col-label" style="margin:0;">Your numbers</div>
+      <button type="button" class="reset-btn" id="resetBtn">Reset</button>
+    </div>
+    <div class="note" id="lowEarningsNote">Net profit this low leaves little or no net self-employment earnings to base contributions on, after the self-employment tax adjustment.</div>
+    <div class="note" id="catchupNote">Catch-up contributions for anyone 50+ whose prior-year wages exceeded $150,000 must go in as Roth (after-tax) under SECURE 2.0. How this applies to self-employment earnings specifically is not fully settled — check with your plan provider before assuming which portion is Roth.</div>
+
+    <div class="split">
+      <div class="col">
+        <div class="col-label">As employee</div>
+        <div class="col-amount" id="empDeferral">$0</div>
+        <div class="col-desc">Elective deferral — your choice, up to the annual limit for your age.</div>
+      </div>
+      <div class="col">
+        <div class="col-label">As employer</div>
+        <div class="col-amount" id="erContribution">$0</div>
+        <div class="col-desc">Profit-sharing contribution — 20% of net self-employment earnings.</div>
+      </div>
+    </div>
+
+    <div class="total-row">
+      <div class="total-label">Total you can contribute<span>Employee + employer, 2026</span></div>
+      <div class="stamp" id="totalAmount">$0</div>
+    </div>
+
+    <details>
+      <summary>Show the math ▾</summary>
+      <div class="steps" id="mathSteps"></div>
+    </details>
+  </div>
+
+  <section class="content">
+    <h2>What is a Solo 401(k)?</h2>
+    <p>A Solo 401(k) — also called a self-employed 401(k) or one-participant 401(k) — is a retirement plan for a business with no full-time employees other than the owner (and the owner's spouse, if they work in the business). It lets you contribute in two roles: as the <b>employee</b>, deferring part of your own pay, and as the <b>employer</b>, making a profit-sharing contribution on top. That combination is what gives it a much higher ceiling than a SEP IRA or traditional IRA at the same income level.</p>
+
+    <h2>Who qualifies</h2>
+    <p>You need self-employment income and no full-time employees (other than a spouse). This calculator is built specifically for <b>sole proprietors and single-member LLCs</b> filing a Schedule C. If your business is taxed as an S-corp, your contribution is based on W-2 wages instead of net profit, and the formula is different — a calculator for that case is coming soon.</p>
+
+    <h2>Contribution deadlines</h2>
+    <p>The plan itself has to be opened by December 31 of the tax year. Once it's open, you generally have until your tax filing deadline — including extensions — to actually fund both the employee deferral and the employer contribution for that year. If you're filing an extension, that can push your funding deadline as late as mid-October.</p>
+
+    <h2>Common questions</h2>
+    <details>
+      <summary>What if my net profit is negative or very small?</summary>
+      <div class="steps"><p class="faq-a">You need positive net self-employment earnings to contribute anything. With a very small profit, the self-employment tax adjustment can leave little room — the calculator will flag this for you.</p></div>
+    </details>
+    <details>
+      <summary>Can my spouse also contribute?</summary>
+      <div class="steps"><p class="faq-a">If your spouse works in the business and earns their own compensation from it, they can open their own Solo 401(k) and contribute under their own limits — effectively doubling what a household can put away. This calculator handles one person at a time.</p></div>
+    </details>
+    <details>
+      <summary>Solo 401(k) vs. SEP IRA — which is better?</summary>
+      <div class="steps"><p class="faq-a">At lower income levels, a Solo 401(k) usually wins because the employee deferral lets you contribute more with less profit than a SEP IRA needs. SEP IRAs only allow the employer-side contribution, so you'd need roughly $288,000 in net profit to hit the same total a Solo 401(k) reaches with much less income.</p></div>
+    </details>
+    <details>
+      <summary>Is this a Roth or traditional contribution?</summary>
+      <div class="steps"><p class="faq-a">Either can work — most Solo 401(k) providers let you choose traditional (pre-tax) or Roth (after-tax) for the employee deferral, though not every provider offers a Roth option for the employer contribution. Note the SECURE 2.0 Roth catch-up rule referenced above if you're 50 or older.</p></div>
+    </details>
+    <h2>More in this suite</h2>
+    <p>See your <a href="se-tax.html">self-employment tax</a> before you plan contributions, compare a <a href="sep-vs-solo401k.html">SEP IRA vs. Solo 401(k)</a> at your income level, or see your <a href="take-home.html">true take-home pay</a> after tax and retirement savings.</p>
+  </section>
+
+  <footer>
+    Figures use 2026 IRS limits: $24,500 employee deferral ($32,500 age 50–59/64+, $35,750 age 60–63), $184,500 Social Security wage base, $360,000 compensation cap, and total contribution caps of $72,000 / $80,000 / $83,250 by age tier. This tool estimates the maximum for sole proprietors and single-member LLCs filing Schedule C — S-corp owners on W-2 wages use a different formula. This is an estimate for planning purposes, not tax or investment advice — confirm your exact figure with a CPA or plan provider before contributing.
+  </footer>
+</BaseLayout>
+
+<script>
+  const SS_WAGE_BASE = 184500;
+  const COMP_CAP = 360000;
+
+  const TIERS = {
+    under50: { maxDeferral: 24500, totalCap: 72000, label: "under 50" },
+    "50to59": { maxDeferral: 32500, totalCap: 80000, label: "age 50–59" },
+    "60to63": { maxDeferral: 35750, totalCap: 83250, label: "age 60–63" },
+    "64plus": { maxDeferral: 32500, totalCap: 80000, label: "age 64+" },
+  };
+
+  const fmt = (n) => "$" + Math.round(n).toLocaleString("en-US");
+  const fmt2 = (n) => "$" + n.toLocaleString("en-US", {minimumFractionDigits:2, maximumFractionDigits:2});
+
+  const netProfitEl = document.getElementById("netProfit");
+  const ageEl = document.getElementById("age");
+  const hasOtherEl = document.getElementById("hasOther");
+  const otherAmountEl = document.getElementById("otherAmount");
+  const otherPlanField = document.getElementById("otherPlanField");
+  const resultsCard = document.getElementById("resultsCard");
+  const lowEarningsNote = document.getElementById("lowEarningsNote");
+  const catchupNote = document.getElementById("catchupNote");
+  const resetBtn = document.getElementById("resetBtn");
+
+  hasOtherEl.addEventListener("change", () => {
+    otherPlanField.classList.toggle("show", hasOtherEl.checked);
+    calculate();
+  });
+
+  resetBtn.addEventListener("click", () => {
+    netProfitEl.value = "";
+    ageEl.value = "under50";
+    hasOtherEl.checked = false;
+    otherAmountEl.value = "";
+    otherPlanField.classList.remove("show");
+    resultsCard.classList.remove("visible");
+    resultsCard.style.display = "none";
+    netProfitEl.focus();
+  });
+
+  function calculate(){
+    const netProfit = parseFloat(netProfitEl.value);
+    if (isNaN(netProfit) || netProfit <= 0){
+      resultsCard.classList.remove("visible");
+      resultsCard.style.display = "none";
+      return;
+    }
+    resultsCard.style.display = "block";
+    requestAnimationFrame(() => resultsCard.classList.add("visible"));
+
+    const tier = TIERS[ageEl.value];
+    const otherUsed = hasOtherEl.checked ? (parseFloat(otherAmountEl.value) || 0) : 0;
+
+    // Step 1: SE tax
+    const seTaxableBase = netProfit * 0.9235;
+    const ssPortion = Math.min(seTaxableBase, SS_WAGE_BASE) * 0.124;
+    const medicarePortion = seTaxableBase * 0.029;
+    const seTax = ssPortion + medicarePortion;
+    const seTaxDeduction = seTax / 2;
+
+    // Step 2: net SE earnings, capped at compensation limit
+    let netSEEarnings = netProfit - seTaxDeduction;
+    netSEEarnings = Math.min(netSEEarnings, COMP_CAP);
+    netSEEarnings = Math.max(netSEEarnings, 0);
+
+    // Step 3: employee deferral — reduced by room already used elsewhere, capped at net SE earnings
+    const availableDeferralRoom = Math.max(tier.maxDeferral - otherUsed, 0);
+    const employeeDeferral = Math.max(Math.min(availableDeferralRoom, netSEEarnings), 0);
+
+    // Step 4: employer contribution — 20% of net SE earnings, capped by remaining room under total cap
+    const employerRaw = netSEEarnings * 0.20;
+    const remainingUnderCap = Math.max(tier.totalCap - employeeDeferral, 0);
+    const employerContribution = Math.max(Math.min(employerRaw, remainingUnderCap), 0);
+
+    const total = employeeDeferral + employerContribution;
+
+    lowEarningsNote.classList.toggle("show", netSEEarnings < 1000);
+    catchupNote.classList.toggle("show", ageEl.value !== "under50");
+
+    document.getElementById("empDeferral").textContent = fmt(employeeDeferral);
+    document.getElementById("erContribution").textContent = fmt(employerContribution);
+    document.getElementById("totalAmount").textContent = fmt(total);
+
+    const steps = [
+      ["Net profit (Schedule C)", fmt(netProfit)],
+      ["× 92.35% (SE tax base)", fmt(seTaxableBase)],
+      ["Social Security portion (12.4%, up to $184,500 wage base)", fmt(ssPortion)],
+      ["Medicare portion (2.9%, uncapped)", fmt(medicarePortion)],
+      ["Self-employment tax", fmt(seTax)],
+      ["½ SE tax deduction", fmt(seTaxDeduction)],
+      ["Net self-employment earnings", fmt(netSEEarnings)],
+      [otherUsed > 0 ? `Employee deferral (limit ${fmt(tier.maxDeferral)}, minus ${fmt(otherUsed)} used elsewhere)` : `Employee deferral (${tier.label} limit: ${fmt(tier.maxDeferral)})`, fmt(employeeDeferral)],
+      ["Employer contribution (20% of net SE earnings)", fmt(employerContribution)],
+      [`Total contribution (capped at ${fmt(tier.totalCap)})`, fmt(total)],
+    ];
+
+    document.getElementById("mathSteps").innerHTML = steps.map(([k,v]) =>
+      `<div class="step"><span class="k">${k}</span><span class="v">${v}</span></div>`
+    ).join("");
+  }
+
+  [netProfitEl, ageEl, otherAmountEl].forEach(el => el.addEventListener("input", calculate));
+  ageEl.addEventListener("change", calculate);
+</script>

@@ -1,0 +1,40 @@
+---
+export interface Props {
+  title: string;
+  description: string;
+  active: 'solo401k' | 'se-tax' | 'sep-vs-solo' | 'take-home';
+}
+const { title, description, active } = Astro.props;
+
+const navItems = [
+  { key: 'solo401k', href: '/', label: 'Solo 401(k)' },
+  { key: 'se-tax', href: '/se-tax/', label: 'SE Tax' },
+  { key: 'sep-vs-solo', href: '/sep-vs-solo401k/', label: 'SEP vs. Solo 401(k)' },
+  { key: 'take-home', href: '/take-home/', label: 'True Take-Home' },
+];
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{title}</title>
+  <meta name="description" content={description}>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div class="wrap">
+  <div class="site-brand">The Solo Ledger</div>
+  <nav class="site-nav">
+    {navItems.map(item => (
+      <a href={item.href} class={active === item.key ? 'active' : ''}>{item.label}</a>
+    ))}
+  </nav>
+</div>
+<div class="wrap">
+  <slot />
+</div>
+</body>
+</html>

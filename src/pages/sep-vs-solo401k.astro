@@ -1,0 +1,234 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+<BaseLayout
+  title="SEP IRA vs. Solo 401(k) Calculator — 2026"
+  description="Compare SEP IRA and Solo 401(k) contribution limits side by side at your income level — 2026 limits."
+  active="sep-vs-solo"
+>
+<div class="eyebrow">Self-employed · Schedule C · 2026 limits</div>
+  <h1>SEP IRA vs. Solo 401(k) Calculator</h1>
+  <div class="sub">Both let you shelter self-employment income for retirement — but at the same income, one usually lets you contribute meaningfully more. See the actual numbers side by side at your profit level.</div>
+
+  <div class="ledger">
+    <div class="field">
+      <label for="netProfit">Net profit from Schedule C</label>
+      <div class="input-row">
+        <span class="prefix">$</span>
+        <input type="number" id="netProfit" placeholder="120000" min="0" step="100">
+      </div>
+      <div class="hint">Line 31 of Schedule C — your business profit for the year.</div>
+    </div>
+
+    <div class="field">
+      <label for="age">Your age</label>
+      <select id="age">
+        <option value="under50">Under 50</option>
+        <option value="50to59">50–59</option>
+        <option value="60to63">60–63 (super catch-up)</option>
+        <option value="64plus">64 or older</option>
+      </select>
+      <div class="hint">SEP IRAs have no catch-up provision — only the Solo 401(k) side changes with age.</div>
+    </div>
+  </div>
+
+  <div class="ledger" id="resultsCard" style="display:none;" aria-live="polite">
+    <div class="results-head">
+      <div class="col-label" style="margin:0;">Side by side</div>
+      <button type="button" class="reset-btn" id="resetBtn">Reset</button>
+    </div>
+
+    <div class="vs-split">
+      <div class="vs-col" id="sepCol">
+        <div class="vs-name">SEP IRA</div>
+        <div class="vs-amount" id="sepAmount">$0</div>
+        <div class="col-desc" style="margin-top:8px;">Employer-only, 20% of net SE earnings.</div>
+      </div>
+      <div class="vs-mid">vs.</div>
+      <div class="vs-col" id="soloCol">
+        <div class="vs-name">Solo 401(k)</div>
+        <div class="vs-amount" id="soloAmount">$0</div>
+        <div class="col-desc" style="margin-top:8px;">Employee deferral + 20% employer contribution.</div>
+      </div>
+    </div>
+
+    <div class="total-row">
+      <div class="total-label">Solo 401(k) advantage<span>Extra room vs. a SEP IRA</span></div>
+      <div class="stamp" id="advantageAmount">$0</div>
+    </div>
+
+    <details>
+      <summary>Show the math ▾</summary>
+      <div class="steps" id="mathSteps"></div>
+    </details>
+  </div>
+
+  <section class="content">
+    <h2>Why they usually don't tie</h2>
+    <p>A SEP IRA only has one contribution lever — the employer-side profit-sharing piece, worth 20% of net self-employment earnings for a sole proprietor. A Solo 401(k) has that <b>same</b> employer piece, plus an employee elective deferral on top. At lower and middle incomes, that deferral is often worth more than the gap in the employer formula — which is why the Solo 401(k) usually wins until profit gets very high.</p>
+
+    <h2>When they converge</h2>
+    <p>As net profit climbs into the high hundreds of thousands, both plans eventually hit the same overall dollar cap, and the employee deferral becomes a smaller share of the total. At that point the two plans land close to the same place — but almost nobody in the sub-$300,000 profit range is in that territory.</p>
+
+    <h2>Beyond the dollar amount</h2>
+    <p>SEP IRAs are simpler to set up and administer, with no separate deferral election to track. Solo 401(k)s allow Roth contributions on the employee side (most providers), permit loans against the balance, and open the door to a spousal plan if your spouse also earns income from the business. Contribution room isn't the only factor — but it's usually the deciding one.</p>
+
+    <h2>Common questions</h2>
+    <details>
+      <summary>Can I switch from a SEP IRA to a Solo 401(k) later?</summary>
+      <div class="steps"><p class="faq-a">Generally yes, though existing SEP IRA balances typically stay in the SEP IRA rather than rolling automatically — most providers can roll it into the new Solo 401(k) if you want everything in one place.</p></div>
+    </details>
+    <details>
+      <summary>Does a SEP IRA allow catch-up contributions?</summary>
+      <div class="steps"><p class="faq-a">No — SEP IRAs have no age-50-plus catch-up provision. That gap is part of why the Solo 401(k) advantage tends to grow for older self-employed savers.</p></div>
+    </details>
+    <details>
+      <summary>Which is easier to set up?</summary>
+      <div class="steps"><p class="faq-a">A SEP IRA can typically be opened with a one-page form and no annual filing requirement. A Solo 401(k) takes a bit more paperwork upfront and requires a Form 5500-EZ once plan assets exceed $250,000.</p></div>
+    </details>
+  </section>
+
+  <footer>
+    Both figures use 2026 limits: employer contributions capped at 20% of net self-employment earnings, with a combined SEP IRA cap of $72,000. Solo 401(k) employee deferral limits are $24,500 (under 50), $32,500 (50–59 or 64+), and $35,750 (60–63), with total caps of $72,000 / $80,000 / $83,250. This is an estimate for planning purposes, not tax or investment advice — confirm your exact figures with a CPA or plan provider.
+  </footer>
+</BaseLayout>
+
+<style>
+.vs-split{
+    display:grid;grid-template-columns:1fr auto 1fr;
+    align-items:stretch;gap:0;
+    margin:22px 0 0;
+  }
+  .vs-col{padding:18px 16px;}
+  .vs-mid{
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Zilla Slab', serif;
+    font-size:13px;color:var(--ink-soft);
+    padding:0 10px;
+  }
+  .vs-name{
+    font-family:'Zilla Slab', serif;
+    font-size:16px;font-weight:600;
+    color:var(--green-deep);
+    margin-bottom:10px;
+  }
+  .vs-amount{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:24px;font-weight:600;
+    color:var(--ink);
+  }
+  .vs-winner{border:2px solid var(--brass);border-radius:4px;}
+  .winner-tag{
+    display:inline-block;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10px;letter-spacing:0.08em;text-transform:uppercase;
+    color:var(--brass);
+    border:1px solid var(--brass);
+    border-radius:2px;padding:2px 6px;
+    margin-bottom:8px;
+  }
+  @media (max-width:520px){
+    .vs-split{grid-template-columns:1fr;}
+    .vs-mid{padding:10px 0;}
+  }
+</style>
+
+<script>
+  const SS_WAGE_BASE = 184500;
+  const COMP_CAP = 360000;
+  const SEP_CAP = 72000;
+
+  const TIERS = {
+    under50: { maxDeferral: 24500, totalCap: 72000, label: "under 50" },
+    "50to59": { maxDeferral: 32500, totalCap: 80000, label: "age 50–59" },
+    "60to63": { maxDeferral: 35750, totalCap: 83250, label: "age 60–63" },
+    "64plus": { maxDeferral: 32500, totalCap: 80000, label: "age 64+" },
+  };
+
+  const fmt = (n) => "$" + Math.round(n).toLocaleString("en-US");
+
+  const netProfitEl = document.getElementById("netProfit");
+  const ageEl = document.getElementById("age");
+  const resultsCard = document.getElementById("resultsCard");
+  const resetBtn = document.getElementById("resetBtn");
+  const sepCol = document.getElementById("sepCol");
+  const soloCol = document.getElementById("soloCol");
+
+  resetBtn.addEventListener("click", () => {
+    netProfitEl.value = "";
+    ageEl.value = "under50";
+    resultsCard.classList.remove("visible");
+    resultsCard.style.display = "none";
+    netProfitEl.focus();
+  });
+
+  function netSEEarningsFrom(netProfit){
+    const seTaxableBase = netProfit * 0.9235;
+    const ssPortion = Math.min(seTaxableBase, SS_WAGE_BASE) * 0.124;
+    const medicarePortion = seTaxableBase * 0.029;
+    const seTaxDeduction = (ssPortion + medicarePortion) / 2;
+    let netSEEarnings = netProfit - seTaxDeduction;
+    netSEEarnings = Math.min(netSEEarnings, COMP_CAP);
+    return Math.max(netSEEarnings, 0);
+  }
+
+  function calculate(){
+    const netProfit = parseFloat(netProfitEl.value);
+    if (isNaN(netProfit) || netProfit <= 0){
+      resultsCard.classList.remove("visible");
+      resultsCard.style.display = "none";
+      return;
+    }
+    resultsCard.style.display = "block";
+    requestAnimationFrame(() => resultsCard.classList.add("visible"));
+
+    const tier = TIERS[ageEl.value];
+    const netSEEarnings = netSEEarningsFrom(netProfit);
+
+    // SEP IRA — employer only
+    const sepTotal = Math.min(netSEEarnings * 0.20, SEP_CAP);
+
+    // Solo 401(k) — employee + employer
+    const employeeDeferral = Math.max(Math.min(tier.maxDeferral, netSEEarnings), 0);
+    const employerRaw = netSEEarnings * 0.20;
+    const remainingUnderCap = Math.max(tier.totalCap - employeeDeferral, 0);
+    const employerContribution = Math.max(Math.min(employerRaw, remainingUnderCap), 0);
+    const soloTotal = employeeDeferral + employerContribution;
+
+    const advantage = soloTotal - sepTotal;
+
+    document.getElementById("sepAmount").textContent = fmt(sepTotal);
+    document.getElementById("soloAmount").textContent = fmt(soloTotal);
+    document.getElementById("advantageAmount").textContent = fmt(Math.max(advantage, 0));
+
+    sepCol.classList.toggle("vs-winner", sepTotal > soloTotal);
+    soloCol.classList.toggle("vs-winner", soloTotal > sepTotal);
+    document.querySelectorAll(".winner-tag").forEach(el => el.remove());
+    if (sepTotal !== soloTotal){
+      const winnerCol = soloTotal > sepTotal ? soloCol : sepCol;
+      const tag = document.createElement("div");
+      tag.className = "winner-tag";
+      tag.textContent = "More room";
+      winnerCol.querySelector(".vs-name").insertAdjacentElement("beforebegin", tag);
+    }
+
+    const steps = [
+      ["Net profit (Schedule C)", fmt(netProfit)],
+      ["Net self-employment earnings (after ½ SE tax)", fmt(netSEEarnings)],
+      ["— SEP IRA: 20% of net SE earnings", fmt(sepTotal)],
+      [`— Solo 401(k) employee deferral (${tier.label})`, fmt(employeeDeferral)],
+      ["— Solo 401(k) employer contribution (20%)", fmt(employerContribution)],
+      ["— Solo 401(k) total", fmt(soloTotal)],
+      ["Solo 401(k) advantage over SEP IRA", fmt(advantage)],
+    ];
+
+    document.getElementById("mathSteps").innerHTML = steps.map(([k,v]) =>
+      `<div class="step"><span class="k">${k}</span><span class="v">${v}</span></div>`
+    ).join("");
+  }
+
+  [netProfitEl, ageEl].forEach(el => {
+    el.addEventListener("input", calculate);
+    el.addEventListener("change", calculate);
+  });
+</script>

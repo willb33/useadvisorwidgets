@@ -1,0 +1,285 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+<BaseLayout
+  title="True Take-Home Calculator for the Self-Employed — 2026"
+  description="See what's actually spendable after self-employment tax, federal income tax, and your Solo 401(k) contribution."
+  active="take-home"
+>
+<div class="eyebrow">Self-employed · Schedule C · 2026 rates</div>
+  <h1>True Take-Home Calculator</h1>
+  <div class="sub">Net profit isn't what lands in your pocket. This walks your number through self-employment tax, federal income tax, and your Solo 401(k) contribution to show what's actually spendable — and what's going to savings.</div>
+
+  <div class="ledger">
+    <div class="field">
+      <label for="netProfit">Net profit from Schedule C</label>
+      <div class="input-row">
+        <span class="prefix">$</span>
+        <input type="number" id="netProfit" placeholder="120000" min="0" step="100">
+      </div>
+      <div class="hint">Line 31 of Schedule C — your business profit for the year.</div>
+    </div>
+
+    <div class="field">
+      <label for="filingStatus">Filing status</label>
+      <select id="filingStatus">
+        <option value="single">Single</option>
+        <option value="mfj">Married filing jointly</option>
+      </select>
+      <div class="hint">Head of household support is coming soon.</div>
+    </div>
+
+    <div class="field">
+      <label for="age">Your age</label>
+      <select id="age">
+        <option value="under50">Under 50</option>
+        <option value="50to59">50–59</option>
+        <option value="60to63">60–63 (super catch-up)</option>
+        <option value="64plus">64 or older</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label for="retirementChoice">Solo 401(k) contribution</label>
+      <select id="retirementChoice">
+        <option value="max">Max it out (recommended)</option>
+        <option value="custom">Custom amount</option>
+        <option value="none">None this year</option>
+      </select>
+    </div>
+
+    <div class="field" id="customAmountField" style="display:none;">
+      <label for="customAmount">Contribution amount</label>
+      <div class="input-row">
+        <span class="prefix">$</span>
+        <input type="number" id="customAmount" placeholder="20000" min="0" step="100">
+      </div>
+    </div>
+  </div>
+
+  <div class="ledger" id="resultsCard" style="display:none;" aria-live="polite">
+    <div class="results-head">
+      <div class="col-label" style="margin:0;">Where your profit goes</div>
+      <button type="button" class="reset-btn" id="resetBtn">Reset</button>
+    </div>
+
+    <div class="ledger-list">
+      <div class="lline start"><span class="lk">Net profit</span><span class="lv" id="lNetProfit">$0</span></div>
+      <div class="lline"><span class="lk">Self-employment tax</span><span class="lv" id="lSETax">−$0</span></div>
+      <div class="lline"><span class="lk">Federal income tax</span><span class="lv" id="lIncomeTax">−$0</span></div>
+      <div class="lline" id="retirementRow"><span class="lk">To Solo 401(k)</span><span class="lv" id="lRetirement">−$0</span></div>
+    </div>
+
+    <div class="total-row">
+      <div class="total-label">Cash take-home<span>Spendable, after tax &amp; savings</span></div>
+      <div class="stamp" id="takeHomeAmount">$0</div>
+    </div>
+    <div class="hint" style="margin:-14px 4px 18px;">Effective federal tax rate: <b id="effRate">0%</b>. Federal only — state income tax isn't included.</div>
+
+    <details>
+      <summary>Show the math ▾</summary>
+      <div class="steps" id="mathSteps"></div>
+    </details>
+  </div>
+
+  <section class="content">
+    <h2>Why net profit overstates your paycheck</h2>
+    <p>Net profit is a tax-reporting number, not a spending number. Before any of it is really "yours," it passes through self-employment tax, federal income tax, and — if you're saving for retirement — your Solo 401(k) contribution. This calculator runs your number through all three so the total on screen is one you can actually budget against.</p>
+
+    <h2>The QBI deduction</h2>
+    <p>Most self-employed filers also qualify for the Qualified Business Income deduction — generally 20% of your net business income after the self-employment tax adjustment and retirement contributions, subject to an overall limit tied to your taxable income. This calculator applies the simplified version of that formula; it doesn't yet handle the wage/UBIA limitations that apply to specified service businesses at high income, so treat the estimate as directional above roughly $200,000 in profit.</p>
+
+    <h2>Common questions</h2>
+    <details>
+      <summary>Why isn't state tax included?</summary>
+      <div class="steps"><p class="faq-a">State income tax rules vary too widely by state to estimate accurately in one general tool — this calculator sticks to federal tax so the number stays reliable. Add your state's estimated rate on top for a fuller picture.</p></div>
+    </details>
+    <details>
+      <summary>Does maxing my Solo 401(k) actually help my take-home?</summary>
+      <div class="steps"><p class="faq-a">It doesn't increase cash in your pocket today — that money goes to savings, not spending — but it does lower your taxable income, which is why the "federal income tax" line shrinks when you contribute more.</p></div>
+    </details>
+    <details>
+      <summary>What if I have other income or deductions?</summary>
+      <div class="steps"><p class="faq-a">This tool only accounts for Schedule C profit, the standard deduction, and a Solo 401(k) contribution. Other income, itemized deductions, or credits will change your real number — use this as a starting estimate, not a final one.</p></div>
+    </details>
+  </section>
+
+  <footer>
+    Uses 2026 federal figures: standard deduction of $16,100 (single) / $32,200 (married filing jointly), seven-bracket rates from 10% to 37%, and a simplified 20% QBI deduction subject to the general taxable-income limit. Solo 401(k) maximums follow the same 2026 limits used elsewhere in this suite. This is an estimate for planning purposes, not tax advice — confirm your exact figures with a CPA before filing or making estimated payments.
+  </footer>
+</BaseLayout>
+
+<style>
+.ledger-list{margin:18px 0 4px;}
+  .lline{
+    display:flex;justify-content:space-between;align-items:baseline;
+    padding:10px 0;border-bottom:1px dotted var(--line);
+    font-family:'IBM Plex Mono', monospace;
+    font-size:14px;
+  }
+  .lline .lk{color:var(--ink-soft);font-family:'IBM Plex Sans', sans-serif;font-size:14px;}
+  .lline .lv{color:var(--red);}
+  .lline.pos .lv{color:var(--ink);}
+  .lline.start{font-weight:600;}
+  .lline.start .lv{color:var(--ink);}
+  #retirementRow{display:none;}
+  #retirementRow.show{display:flex;}
+</style>
+
+<script>
+  const SS_WAGE_BASE = 184500;
+  const COMP_CAP = 360000;
+
+  const TIERS = {
+    under50: { maxDeferral: 24500, totalCap: 72000, label: "under 50" },
+    "50to59": { maxDeferral: 32500, totalCap: 80000, label: "age 50–59" },
+    "60to63": { maxDeferral: 35750, totalCap: 83250, label: "age 60–63" },
+    "64plus": { maxDeferral: 32500, totalCap: 80000, label: "age 64+" },
+  };
+
+  const STD_DEDUCTION = { single: 16100, mfj: 32200 };
+
+  const BRACKETS = {
+    single: [
+      [0, 0.10], [12400, 0.12], [50400, 0.22], [105700, 0.24],
+      [201775, 0.32], [256225, 0.35], [640600, 0.37]
+    ],
+    mfj: [
+      [0, 0.10], [24800, 0.12], [100800, 0.22], [211400, 0.24],
+      [403550, 0.32], [512450, 0.35], [768700, 0.37]
+    ]
+  };
+
+  const fmt = (n) => "$" + Math.round(n).toLocaleString("en-US");
+  const fmtSigned = (n) => (n === 0 ? "$0" : "−" + fmt(n));
+
+  const netProfitEl = document.getElementById("netProfit");
+  const filingStatusEl = document.getElementById("filingStatus");
+  const ageEl = document.getElementById("age");
+  const retirementChoiceEl = document.getElementById("retirementChoice");
+  const customAmountField = document.getElementById("customAmountField");
+  const customAmountEl = document.getElementById("customAmount");
+  const resultsCard = document.getElementById("resultsCard");
+  const resetBtn = document.getElementById("resetBtn");
+  const retirementRow = document.getElementById("retirementRow");
+
+  retirementChoiceEl.addEventListener("change", () => {
+    customAmountField.style.display = retirementChoiceEl.value === "custom" ? "block" : "none";
+    calculate();
+  });
+
+  resetBtn.addEventListener("click", () => {
+    netProfitEl.value = "";
+    filingStatusEl.value = "single";
+    ageEl.value = "under50";
+    retirementChoiceEl.value = "max";
+    customAmountEl.value = "";
+    customAmountField.style.display = "none";
+    resultsCard.classList.remove("visible");
+    resultsCard.style.display = "none";
+    netProfitEl.focus();
+  });
+
+  function seTaxFrom(netProfit){
+    const seTaxableBase = netProfit * 0.9235;
+    const ssPortion = Math.min(seTaxableBase, SS_WAGE_BASE) * 0.124;
+    const medicarePortion = seTaxableBase * 0.029;
+    const seTax = ssPortion + medicarePortion;
+    const seTaxDeduction = seTax / 2;
+    return { seTax, seTaxDeduction };
+  }
+
+  function maxSolo401k(netSEEarnings, tier){
+    const employeeDeferral = Math.max(Math.min(tier.maxDeferral, netSEEarnings), 0);
+    const employerRaw = netSEEarnings * 0.20;
+    const remainingUnderCap = Math.max(tier.totalCap - employeeDeferral, 0);
+    const employerContribution = Math.max(Math.min(employerRaw, remainingUnderCap), 0);
+    return employeeDeferral + employerContribution;
+  }
+
+  function bracketTax(taxableIncome, brackets){
+    let tax = 0;
+    for (let i = 0; i < brackets.length; i++){
+      const [floor, rate] = brackets[i];
+      const nextFloor = i + 1 < brackets.length ? brackets[i + 1][0] : Infinity;
+      if (taxableIncome <= floor) break;
+      const taxedInBand = Math.min(taxableIncome, nextFloor) - floor;
+      tax += taxedInBand * rate;
+    }
+    return tax;
+  }
+
+  function calculate(){
+    const netProfit = parseFloat(netProfitEl.value);
+    if (isNaN(netProfit) || netProfit <= 0){
+      resultsCard.classList.remove("visible");
+      resultsCard.style.display = "none";
+      return;
+    }
+    resultsCard.style.display = "block";
+    requestAnimationFrame(() => resultsCard.classList.add("visible"));
+
+    const filingStatus = filingStatusEl.value;
+    const tier = TIERS[ageEl.value];
+    const { seTax, seTaxDeduction } = seTaxFrom(netProfit);
+
+    let netSEEarnings = Math.min(netProfit - seTaxDeduction, COMP_CAP);
+    netSEEarnings = Math.max(netSEEarnings, 0);
+
+    let retirementContribution = 0;
+    if (retirementChoiceEl.value === "max"){
+      retirementContribution = maxSolo401k(netSEEarnings, tier);
+    } else if (retirementChoiceEl.value === "custom"){
+      const custom = parseFloat(customAmountEl.value) || 0;
+      const cap = maxSolo401k(netSEEarnings, tier);
+      retirementContribution = Math.max(Math.min(custom, cap), 0);
+    }
+
+    const agi = Math.max(netProfit - seTaxDeduction - retirementContribution, 0);
+    const stdDeduction = STD_DEDUCTION[filingStatus];
+    const taxableBeforeQBI = Math.max(agi - stdDeduction, 0);
+
+    const qbiBase = Math.max(netProfit - seTaxDeduction - retirementContribution, 0);
+    const tentativeQBI = qbiBase * 0.20;
+    const qbiLimit = taxableBeforeQBI * 0.20;
+    const qbiDeduction = Math.max(Math.min(tentativeQBI, qbiLimit), 0);
+
+    const taxableIncome = Math.max(taxableBeforeQBI - qbiDeduction, 0);
+    const incomeTax = bracketTax(taxableIncome, BRACKETS[filingStatus]);
+
+    const totalTax = seTax + incomeTax;
+    const takeHome = netProfit - totalTax - retirementContribution;
+    const effRate = netProfit > 0 ? (totalTax / netProfit) * 100 : 0;
+
+    document.getElementById("lNetProfit").textContent = fmt(netProfit);
+    document.getElementById("lSETax").textContent = fmtSigned(seTax);
+    document.getElementById("lIncomeTax").textContent = fmtSigned(incomeTax);
+    document.getElementById("lRetirement").textContent = fmtSigned(retirementContribution);
+    retirementRow.classList.toggle("show", retirementContribution > 0);
+    document.getElementById("takeHomeAmount").textContent = fmt(takeHome);
+    document.getElementById("effRate").textContent = effRate.toFixed(1) + "%";
+
+    const steps = [
+      ["Net profit (Schedule C)", fmt(netProfit)],
+      ["Self-employment tax", fmt(seTax)],
+      ["½ SE tax deduction", fmt(seTaxDeduction)],
+      ["Solo 401(k) contribution", fmt(retirementContribution)],
+      ["Adjusted gross income", fmt(agi)],
+      [`Standard deduction (${filingStatus === "mfj" ? "MFJ" : "single"})`, fmt(stdDeduction)],
+      ["QBI deduction (simplified, 20%)", fmt(qbiDeduction)],
+      ["Taxable income", fmt(taxableIncome)],
+      ["Federal income tax (bracket calculation)", fmt(incomeTax)],
+      ["Total federal tax (SE + income)", fmt(totalTax)],
+      ["Cash take-home", fmt(takeHome)],
+    ];
+
+    document.getElementById("mathSteps").innerHTML = steps.map(([k,v]) =>
+      `<div class="step"><span class="k">${k}</span><span class="v">${v}</span></div>`
+    ).join("");
+  }
+
+  [netProfitEl, filingStatusEl, ageEl, customAmountEl].forEach(el => {
+    el.addEventListener("input", calculate);
+    el.addEventListener("change", calculate);
+  });
+</script>

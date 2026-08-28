@@ -1,0 +1,158 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+<BaseLayout
+  title="Self-Employment Tax Calculator — 2026"
+  description="Calculate your self-employment tax, the deduction you get back, and how much to set aside — 2026 rates."
+  active="se-tax"
+>
+<div class="eyebrow">Self-employed · Schedule C · 2026 rates</div>
+  <h1>Self-Employment Tax Calculator</h1>
+  <div class="sub">When you work for yourself, you pay both halves of Social Security and Medicare — 15.3% combined, before income tax even enters the picture. Here's exactly what you owe and how much of it you get back as a deduction. <span class="example-hint">Example: $120,000 in net profit owes about <b>$16,955</b> in SE tax.</span></div>
+
+  <div class="ledger">
+    <div class="field">
+      <label for="netProfit">Net profit from Schedule C</label>
+      <div class="input-row">
+        <span class="prefix">$</span>
+        <input type="number" id="netProfit" placeholder="120000" min="0" step="100">
+      </div>
+      <div class="hint">Line 31 of Schedule C — your business profit for the year.</div>
+    </div>
+
+    <div class="field">
+      <label for="filingStatus">Filing status</label>
+      <select id="filingStatus">
+        <option value="single">Single</option>
+        <option value="mfj">Married filing jointly</option>
+        <option value="mfs">Married filing separately</option>
+      </select>
+      <div class="hint">Determines the threshold for the Additional Medicare Tax.</div>
+    </div>
+  </div>
+
+  <div class="ledger" id="resultsCard" style="display:none;" aria-live="polite">
+    <div class="results-head">
+      <div class="col-label" style="margin:0;">Your numbers</div>
+      <button type="button" class="reset-btn" id="resetBtn">Reset</button>
+    </div>
+
+    <div class="split">
+      <div class="col">
+        <div class="col-label">SE tax owed</div>
+        <div class="col-amount" id="seTaxAmount">$0</div>
+        <div class="col-desc">12.4% Social Security (up to the wage base) + 2.9% Medicare, plus Additional Medicare Tax if applicable.</div>
+      </div>
+      <div class="col">
+        <div class="col-label">You deduct half</div>
+        <div class="col-amount" id="deductionAmount">$0</div>
+        <div class="col-desc">This half is an above-the-line deduction on your 1040 — it lowers your taxable income.</div>
+      </div>
+    </div>
+
+    <div class="total-row">
+      <div class="total-label">Suggested to set aside<span>For SE tax alone, this year</span></div>
+      <div class="stamp" id="setAsideAmount">$0</div>
+    </div>
+    <div class="hint" style="margin:-14px 4px 18px;">This covers SE tax only — add your expected federal (and state) income tax on top. See the <a href="take-home.html">True Take-Home Calculator</a> for the full picture.</div>
+
+    <details>
+      <summary>Show the math ▾</summary>
+      <div class="steps" id="mathSteps"></div>
+    </details>
+  </div>
+
+  <section class="content">
+    <h2>What counts as self-employment tax</h2>
+    <p>Self-employment (SE) tax is how you pay into Social Security and Medicare when there's no employer to split the bill. A traditional employee and employer each pay 7.65% — you pay both halves, 15.3% total, on 92.35% of your net profit.</p>
+
+    <h2>The 92.35% adjustment</h2>
+    <p>The IRS only taxes 92.35% of your net profit for SE tax purposes, as a rough stand-in for the employer-side payroll tax an employee's company would otherwise pay on their behalf. It's applied automatically before the 15.3% rate.</p>
+
+    <h2>Social Security wage base</h2>
+    <p>The 12.4% Social Security portion only applies up to $184,500 of SE income for 2026 — earnings above that are subject only to the 2.9% Medicare portion (plus the Additional Medicare Tax at higher incomes).</p>
+
+    <h2>Common questions</h2>
+    <details>
+      <summary>Is SE tax the same as income tax?</summary>
+      <div class="steps"><p class="faq-a">No — SE tax funds Social Security and Medicare specifically. You'll owe federal (and possibly state) income tax on top of it, calculated separately on your taxable income.</p></div>
+    </details>
+    <details>
+      <summary>What is the Additional Medicare Tax?</summary>
+      <div class="steps"><p class="faq-a">An extra 0.9% Medicare tax applies to self-employment income above $200,000 (single), $250,000 (married filing jointly), or $125,000 (married filing separately). It's not split — you owe the full 0.9% yourself, and it isn't eligible for the usual half-deduction.</p></div>
+    </details>
+    <details>
+      <summary>Do I need to pay this quarterly?</summary>
+      <div class="steps"><p class="faq-a">If you expect to owe $1,000 or more for the year after withholding and credits, the IRS generally expects quarterly estimated payments covering both SE tax and income tax, due in April, June, September, and January.</p></div>
+    </details>
+  </section>
+
+  <footer>
+    Figures use 2026 rates: 15.3% combined SE tax rate (12.4% Social Security up to the $184,500 wage base, 2.9% Medicare uncapped), plus a 0.9% Additional Medicare Tax above $200,000 / $250,000 / $125,000 depending on filing status. This is an estimate for planning purposes, not tax advice — confirm your exact figure with a CPA before filing or making estimated payments.
+  </footer>
+</BaseLayout>
+
+<script>
+  const SS_WAGE_BASE = 184500;
+  const ADD_MEDICARE_THRESHOLDS = { single: 200000, mfj: 250000, mfs: 125000 };
+
+  const fmt = (n) => "$" + Math.round(n).toLocaleString("en-US");
+
+  const netProfitEl = document.getElementById("netProfit");
+  const filingStatusEl = document.getElementById("filingStatus");
+  const resultsCard = document.getElementById("resultsCard");
+  const resetBtn = document.getElementById("resetBtn");
+
+  resetBtn.addEventListener("click", () => {
+    netProfitEl.value = "";
+    filingStatusEl.value = "single";
+    resultsCard.classList.remove("visible");
+    resultsCard.style.display = "none";
+    netProfitEl.focus();
+  });
+
+  function calculate(){
+    const netProfit = parseFloat(netProfitEl.value);
+    if (isNaN(netProfit) || netProfit <= 0){
+      resultsCard.classList.remove("visible");
+      resultsCard.style.display = "none";
+      return;
+    }
+    resultsCard.style.display = "block";
+    requestAnimationFrame(() => resultsCard.classList.add("visible"));
+
+    const seTaxableBase = netProfit * 0.9235;
+    const ssPortion = Math.min(seTaxableBase, SS_WAGE_BASE) * 0.124;
+    const medicarePortion = seTaxableBase * 0.029;
+
+    const addMedicareThreshold = ADD_MEDICARE_THRESHOLDS[filingStatusEl.value];
+    const addMedicareBase = Math.max(seTaxableBase - addMedicareThreshold, 0);
+    const addMedicareTax = addMedicareBase * 0.009;
+
+    const seTax = ssPortion + medicarePortion + addMedicareTax;
+    const seTaxDeduction = (ssPortion + medicarePortion) / 2; // Additional Medicare Tax is not deductible
+
+    document.getElementById("seTaxAmount").textContent = fmt(seTax);
+    document.getElementById("deductionAmount").textContent = fmt(seTaxDeduction);
+    document.getElementById("setAsideAmount").textContent = fmt(seTax);
+
+    const steps = [
+      ["Net profit (Schedule C)", fmt(netProfit)],
+      ["× 92.35% (SE tax base)", fmt(seTaxableBase)],
+      ["Social Security (12.4%, up to $184,500 wage base)", fmt(ssPortion)],
+      ["Medicare (2.9%, uncapped)", fmt(medicarePortion)],
+      [addMedicareTax > 0 ? `Additional Medicare Tax (0.9% above ${fmt(addMedicareThreshold)})` : "Additional Medicare Tax (not applicable)", fmt(addMedicareTax)],
+      ["Total SE tax", fmt(seTax)],
+      ["Deduction (half of SS + Medicare only)", fmt(seTaxDeduction)],
+    ];
+
+    document.getElementById("mathSteps").innerHTML = steps.map(([k,v]) =>
+      `<div class="step"><span class="k">${k}</span><span class="v">${v}</span></div>`
+    ).join("");
+  }
+
+  [netProfitEl, filingStatusEl].forEach(el => {
+    el.addEventListener("input", calculate);
+    el.addEventListener("change", calculate);
+  });
+</script>
