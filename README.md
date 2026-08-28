@@ -1,4 +1,4 @@
-# The Solo Ledger
+# Advisor Widgets
 
 A four-calculator suite for the self-employed: Solo 401(k) contributions,
 self-employment tax, SEP IRA vs. Solo 401(k) comparison, and true take-home pay.
